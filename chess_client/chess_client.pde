@@ -5,8 +5,8 @@ color lightbrown=#FFFFC3;
 color darkbrown=#D8864E;
 PImage wrook,wbishop,wknight,wqueen,wking,wpawn;
 PImage brook,bbishop,bknight,bqueen,bking,bpawn;
-boolean firstClick,myTurn,z,q,r,k,b;
-int row1,col1,row2,col2;
+boolean firstClick,myTurn,undid,z,q,r,k,b;
+int row1,col1,row2,col2,befr,befc;
 
 char grid[][] = {
   {'R','B','N','Q','K','N','B','R'}, 
@@ -42,14 +42,13 @@ void setup(){
 
 void draw(){
   drawBoard();
-  highlightSquare();
   drawPieces();
+  highlightSquare();
   receiveMove();
-  if(z){
-    myTurn=true;
-  }
+  if(z)undoMove();
+  pawnPromote();
 }
-
+//Custom Functions
 void receiveMove(){
   if(myClient.available()>0){
     String incoming=myClient.readString();
@@ -57,50 +56,13 @@ void receiveMove(){
     int c1=int(incoming.substring(2,3));
     int r2=int(incoming.substring(4,5));
     int c2=int(incoming.substring(6,7));
+    String un=incoming.substring(8);
     grid[r2][c2]=grid[r1][c1];
     grid[r1][c1]=' ';
-    myTurn=true;
+    println(un);
+    if(un.equals("false"))myTurn=true;
   }
 }
-
-void drawBoard(){
-  noStroke();
-  for(int r=0;r<8;r++){
-    for(int c=0;c<8;c++){ 
-      if((r%2)==(c%2)){ 
-        fill(lightbrown);
-      }else{ 
-        fill(darkbrown);
-      }
-      rect(c*100,r*100,100,100);
-    }
-  }
-}
-
-void highlightSquare(){
-  if(!firstClick){
-    noFill();
-    stroke(255,0,0);
-    strokeWeight(5);
-    rect(col1*100,row1*100,100,100);
-  }
-}
-
-void keyPressed(){
-  if(key=='z'||key=='Z')z=true;
-  if(key=='q'||key=='Q')q=true;
-  if(key=='r'||key=='R')r=true;
-  if(key=='k'||key=='K')k=true;
-  if(key=='b'||key=='B')b=true;
-}
-void keyReleased(){
-  if(key=='z'||key=='Z')z=false;
-  if(key=='q'||key=='Q')q=false;
-  if(key=='r'||key=='R')r=false;
-  if(key=='k'||key=='K')k=false;
-  if(key=='b'||key=='B')b=false;
-}
-
 void drawPieces(){
   for (int r=0;r<8;r++) {
     for (int c=0;c<8;c++) {
@@ -119,19 +81,99 @@ void drawPieces(){
     }
   }
 }
-
+void drawBoard(){
+  noStroke();
+  for(int r=0;r<8;r++){
+    for(int c=0;c<8;c++){ 
+      if((r%2)==(c%2)){ 
+        fill(lightbrown);
+      }else{ 
+        fill(darkbrown);
+      }
+      rect(c*100,r*100,100,100);
+    }
+  }
+}
+void undoMove(){
+  if(firstClick&&!myTurn){
+    if(grid[row2][col2]=='P'){
+      grid[befr][befc]='P';
+      grid[row2][col2]=' ';
+      myTurn=true;
+      undid=true;
+    }if(grid[row2][col2]=='Q'){
+      grid[befr][befc]='Q';
+      grid[row2][col2]=' ';
+      myTurn=true;
+      undid=true;
+    }if(grid[row2][col2]=='R'){
+      grid[befr][befc]='R';
+      grid[row2][col2]=' ';
+      myTurn=true;
+      undid=true;
+    }if(grid[row2][col2]=='K'){
+      grid[befr][befc]='K';
+      grid[row2][col2]=' ';
+      myTurn=true;
+      undid=true;
+    }if(grid[row2][col2]=='N'){
+      grid[befr][befc]='N';
+      grid[row2][col2]=' ';
+      myTurn=true;
+      undid=true;
+    }if(grid[row2][col2]=='B'){
+      grid[befr][befc]='B';
+      grid[row2][col2]=' ';
+      myTurn=true;
+      undid=true;
+    }myClient.write(row1+","+col1+","+row2+","+col2+","+undid);
+  }
+}
+void pawnPromote(){
+  for(int i=0;i<8;i++){
+    if(grid[0][i]=='P'){
+      
+    }
+  }
+}
+void highlightSquare(){
+  if(!firstClick){
+    noFill();
+    stroke(255,0,0);
+    strokeWeight(5);
+    rect(col1*100,row1*100,100,100);
+  }
+}
+//Keyboard Inputs
+void keyPressed(){
+  if(key=='z'||key=='Z')z=true;
+  if(key=='q'||key=='Q')q=true;
+  if(key=='r'||key=='R')r=true;
+  if(key=='k'||key=='K')k=true;
+  if(key=='b'||key=='B')b=true;
+}
+void keyReleased(){
+  if(key=='z'||key=='Z')z=false;
+  if(key=='q'||key=='Q')q=false;
+  if(key=='r'||key=='R')r=false;
+  if(key=='k'||key=='K')k=false;
+  if(key=='b'||key=='B')b=false;
+}
 void mouseReleased(){
   if(firstClick&&myTurn){
     row1=mouseY/100;
     col1=mouseX/100;
-    firstClick=false;
+    if(grid[row1][col1]=='P'||grid[row1][col1]=='R'||grid[row1][col1]=='Q'||grid[row1][col1]=='N'||grid[row1][col1]=='B'||grid[row1][col1]=='K')firstClick=false;
   }else if(myTurn){
     row2=mouseY/100;
     col2=mouseX/100;
     if(!(row2==row1&&col2==col1)){
       grid[row2][col2]=grid[row1][col1];
+      befr=row1;
+      befc=col1;
       grid[row1][col1]=' ';
-      myClient.write(row1+","+col1+","+row2+","+col2);
+      undid=false;
+      myClient.write(row1+","+col1+","+row2+","+col2+","+undid);
       firstClick=true;
       myTurn=false;
     }
