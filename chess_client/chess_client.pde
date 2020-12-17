@@ -5,8 +5,9 @@ color lightbrown=#FFFFC3;
 color darkbrown=#D8864E;
 PImage wrook,wbishop,wknight,wqueen,wking,wpawn;
 PImage brook,bbishop,bknight,bqueen,bking,bpawn;
-boolean firstClick,myTurn,undid,z,q,r,k,b;
-int row1,col1,row2,col2,befr,befc;
+boolean firstClick,myTurn,undid,promoting,z,q,r,k,b;
+int row1,col1,row2,col2;
+char lastPieceTaken;
 
 char grid[][] = {
   {'R','B','N','Q','K','N','B','R'}, 
@@ -21,9 +22,12 @@ char grid[][] = {
 
 void setup(){
   size(800,800);
+  textAlign(CENTER,CENTER);
   myClient=new Client(this,"127.0.0.1",1234);
   firstClick=true;
   myTurn=false;
+  promoting=false;
+  lastPieceTaken = ' ';
 
   brook=loadImage("blackRook.png");
   bbishop=loadImage("blackBishop.png");
@@ -46,7 +50,13 @@ void draw(){
   highlightSquare();
   receiveMove();
   if(z)undoMove();
-  pawnPromote();
+  for(int i=0;i<8;i++){
+    if(grid[7][i]=='P'){
+      promoting=true;
+      pawnPromote();
+      break;
+    }
+  }
 }
 //Custom Functions
 void receiveMove(){
@@ -60,7 +70,11 @@ void receiveMove(){
     grid[r2][c2]=grid[r1][c1];
     grid[r1][c1]=' ';
     println(un);
-    if(un.equals("false"))myTurn=true;
+    if(un.equals("false")){
+      myTurn=true;
+    }else{
+      
+    }
   }
 }
 void drawPieces(){
@@ -95,49 +109,66 @@ void drawBoard(){
   }
 }
 void undoMove(){
-  if(firstClick&&!myTurn){
-    if(grid[row2][col2]=='P'){
-      grid[befr][befc]='P';
-      grid[row2][col2]=' ';
-      myTurn=true;
-      undid=true;
-    }if(grid[row2][col2]=='Q'){
-      grid[befr][befc]='Q';
-      grid[row2][col2]=' ';
-      myTurn=true;
-      undid=true;
-    }if(grid[row2][col2]=='R'){
-      grid[befr][befc]='R';
-      grid[row2][col2]=' ';
-      myTurn=true;
-      undid=true;
-    }if(grid[row2][col2]=='K'){
-      grid[befr][befc]='K';
-      grid[row2][col2]=' ';
-      myTurn=true;
-      undid=true;
-    }if(grid[row2][col2]=='N'){
-      grid[befr][befc]='N';
-      grid[row2][col2]=' ';
-      myTurn=true;
-      undid=true;
-    }if(grid[row2][col2]=='B'){
-      grid[befr][befc]='B';
-      grid[row2][col2]=' ';
-      myTurn=true;
-      undid=true;
-    }myClient.write(row1+","+col1+","+row2+","+col2+","+undid);
+  if(firstClick&&!myTurn&&!promoting){
+    grid[row1][col1]=grid[row2][col2];
+    grid[row2][col2]=lastPieceTaken;
+    lastPieceTaken=' ';
+    myTurn=true;
+    undid=true;
   }
+    //if(grid[row2][col2]=='P'){
+    //  grid[befr][befc]='P';
+    //  grid[row2][col2]=lastPieceTaken;
+    //  myTurn=true;
+    //  undid=true;
+    //}if(grid[row2][col2]=='Q'){
+    //  grid[befr][befc]='Q';
+    //  grid[row2][col2]=lastPieceTaken;
+    //  myTurn=true;
+    //  undid=true;
+    //}if(grid[row2][col2]=='R'){
+    //  grid[befr][befc]='R';
+    //  grid[row2][col2]=lastPieceTaken;
+    //  myTurn=true;
+    //  undid=true;
+    //}if(grid[row2][col2]=='K'){
+    //  grid[befr][befc]='K';
+    //  grid[row2][col2]=lastPieceTaken;
+    //  myTurn=true;
+    //  undid=true;
+    //}if(grid[row2][col2]=='N'){
+    //  grid[befr][befc]='N';
+    //  grid[row2][col2]=lastPieceTaken;
+    //  myTurn=true;
+    //  undid=true;
+    //}if(grid[row2][col2]=='B'){
+    //  grid[befr][befc]='B';
+    //  grid[row2][col2]=lastPieceTaken;
+    //  myTurn=true;
+    //  undid=true;
+    //}
+    myClient.write(row1+","+col1+","+row2+","+col2+","+undid);
 }
 void pawnPromote(){
-  for(int i=0;i<8;i++){
-    if(grid[0][i]=='P'){
-      
-    }
+  if(promoting){
+    fill(255);
+    rect(width/2-200,height/2-100,400,200);
+    fill(0);
+    textSize(40);
+    text("Promote a Piece",width/2,height/1.8);
+    textSize(20);
+    text("Q = Queen",width/2-60,height/1.8-80);
+    text("K = Knight",width/2+60,height/1.8-80);
+    text("R = Rook",width/2-60,height/1.8-40);
+    text("B = Bishop",width/2+60,height/1.8-40);
+    if(q)grid[row2][col2]='Q';
+    if(k)grid[row2][col2]='N';
+    if(r)grid[row2][col2]='R';
+    if(b)grid[row2][col2]='B';
   }
 }
 void highlightSquare(){
-  if(!firstClick){
+  if(!firstClick&&!promoting){
     noFill();
     stroke(255,0,0);
     strokeWeight(5);
@@ -160,22 +191,23 @@ void keyReleased(){
   if(key=='b'||key=='B')b=false;
 }
 void mouseReleased(){
-  if(firstClick&&myTurn){
+  if(firstClick&&myTurn&&!promoting){
     row1=mouseY/100;
     col1=mouseX/100;
     if(grid[row1][col1]=='P'||grid[row1][col1]=='R'||grid[row1][col1]=='Q'||grid[row1][col1]=='N'||grid[row1][col1]=='B'||grid[row1][col1]=='K')firstClick=false;
-  }else if(myTurn){
+  }else if(myTurn&&!promoting){
     row2=mouseY/100;
     col2=mouseX/100;
     if(!(row2==row1&&col2==col1)){
+      lastPieceTaken=grid[row2][col2];
       grid[row2][col2]=grid[row1][col1];
-      befr=row1;
-      befc=col1;
       grid[row1][col1]=' ';
       undid=false;
       myClient.write(row1+","+col1+","+row2+","+col2+","+undid);
-      firstClick=true;
       myTurn=false;
+      firstClick=true;
+    }else{
+      firstClick=true;
     }
   }
 }
