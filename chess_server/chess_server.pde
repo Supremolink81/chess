@@ -12,14 +12,14 @@ int row1,col1,row2,col2;
 char lastPieceTaken;
 
 char grid[][] = {
-  {'R','B','N','Q','K','N','B','R'}, 
+  {'R','N','B','Q','K','B','N','R'}, 
   {'P','P','P','P','P','P','P','P'}, 
   {' ',' ',' ',' ',' ',' ',' ',' '}, 
   {' ',' ',' ',' ',' ',' ',' ',' '}, 
   {' ',' ',' ',' ',' ',' ',' ',' '}, 
   {' ',' ',' ',' ',' ',' ',' ',' '}, 
   {'p','p','p','p','p','p','p','p'}, 
-  {'r','b','n','q','k','n','b','r'}
+  {'r','n','b','q','k','b','n','r'}
 };
 void setup(){
   size(800,800);
@@ -73,10 +73,22 @@ void receiveMove(){
     }
     if(ms.equals("un"))myTurn=false;
     if(ms.equals("prom"))myTurn=false;
-    if(ms.equals("q"))grid[r2][c2]='Q';
-    if(ms.equals("r"))grid[r2][c2]='R';
-    if(ms.equals("n"))grid[r2][c2]='N';
-    if(ms.equals("b"))grid[r2][c2]='B';
+    if(ms.equals("q")){
+      grid[r2][c2]='Q';
+      myTurn=true;
+    }
+    if(ms.equals("r")){
+      grid[r2][c2]='R';
+      myTurn=true;
+    }
+    if(ms.equals("n")){
+      grid[r2][c2]='N';
+      myTurn=true;
+    }
+    if(ms.equals("b")){
+      grid[r2][c2]='B';
+      myTurn=true;
+    }
     if(ms.equals("none"))myTurn=true;
   }
 }
@@ -164,14 +176,13 @@ void highlightSquare(){
 }
 //Keyboard Inputs
 void keyPressed(){
-  //if(key=='z'||key=='Z') 
   if(key=='q'||key=='Q')q=true;
   if(key=='r'||key=='R')r=true;
   if(key=='k'||key=='K')k=true;
   if(key=='b'||key=='B')b=true;
 }
 void keyReleased(){
-  if(key=='z'||key=='Z') undoMove();;
+  if(key=='z'&&!myTurn||key=='Z'&&!myTurn) undoMove();
   if(key=='q'||key=='Q')q=false;
   if(key=='r'||key=='R')r=false;
   if(key=='k'||key=='K')k=false;

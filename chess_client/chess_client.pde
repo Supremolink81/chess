@@ -11,14 +11,14 @@ int row1,col1,row2,col2;
 char lastPieceTaken;
 
 char grid[][] = {
-  {'R','B','N','Q','K','N','B','R'}, 
+  {'R','N','B','Q','K','B','N','R'}, 
   {'P','P','P','P','P','P','P','P'}, 
   {' ',' ',' ',' ',' ',' ',' ',' '}, 
   {' ',' ',' ',' ',' ',' ',' ',' '}, 
   {' ',' ',' ',' ',' ',' ',' ',' '}, 
   {' ',' ',' ',' ',' ',' ',' ',' '}, 
   {'p','p','p','p','p','p','p','p'}, 
-  {'r','b','n','q','k','n','b','r'}
+  {'r','n','b','q','k','b','n','r'}
 };
 void setup(){
   size(800,800);
@@ -73,10 +73,26 @@ void receiveMove(){
     }
     if(ms.equals("un"))myTurn=false;
     if(ms.equals("prom"))myTurn=false;
-    if(ms.equals("q"))grid[r2][c2]='q';
-    if(ms.equals("r"))grid[r2][c2]='r';
-    if(ms.equals("n"))grid[r2][c2]='n';
-    if(ms.equals("b"))grid[r2][c2]='b';
+    if(ms.equals("q")){
+      grid[r2][c2]='q';
+      myTurn=true;
+      println("Hi");
+    }
+    if(ms.equals("r")){
+      grid[r2][c2]='r';
+      myTurn=true;
+      println("Hi");
+    }
+    if(ms.equals("n")){
+      grid[r2][c2]='n';
+      myTurn=true;
+      println("Hi");
+    }
+    if(ms.equals("b")){
+      grid[r2][c2]='b';
+      myTurn=true;
+      println("Hi");
+    }
     if(ms.equals("none"))myTurn=true;
     if(r1<=7&&r2<=7&&c1<=7&&c2<=7){
       println(" after ["+grid[r2][c2]+"]");
@@ -151,7 +167,7 @@ void pawnPromote(){
       grid[row2][col2]='B';
       msg="b";
     }
-    if(grid[row2][col2]!='p'){
+    if(grid[row2][col2]!='P'){
       myClient.write(row1+","+col1+","+row2+","+col2+","+msg);
       promoting=false;
     }
