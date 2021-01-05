@@ -8,7 +8,7 @@ PImage wrook,wbishop,wknight,wqueen,wking,wpawn;
 PImage brook,bbishop,bknight,bqueen,bking,bpawn;
 boolean firstClick,myTurn,undid,promoting,z,q,r,k,b;
 String msg;
-int row1,col1,row2,col2;
+int row1,col1,row2,col2,j;
 char lastPieceTaken;
 
 char grid[][] = {
@@ -29,6 +29,7 @@ void setup(){
   myTurn=true;
   promoting=false;
   lastPieceTaken=' ';
+  j=0;
 
   brook=loadImage("blackRook.png");
   bbishop=loadImage("blackBishop.png");
@@ -129,11 +130,15 @@ void undoMove(){
     grid[row2][col2]=lastPieceTaken;
     myTurn=true;
     msg="un";
-  }myServer.write(row2+","+col2+","+row1+","+col1+","+msg);
+    myServer.write(row2+","+col2+","+row1+","+col1+","+msg);
+  }
 }
 void pawnPromote(){
   if(promoting){
-    myServer.write(9+","+9+","+9+","+9+","+"prom");
+    while(j<1){
+      myServer.write(9+","+9+","+9+","+9+","+"prom");
+      j++;
+    }
     fill(255);
     rect(width/2-200,height/2-100,400,200);
     fill(0);
@@ -147,22 +152,30 @@ void pawnPromote(){
     if(q){
       grid[row2][col2]='q';
       msg="q";
+      promoting=false;
+      j=0;
+      myServer.write(row1+","+col1+","+row2+","+col2+","+msg);
     }
     if(k){
       grid[row2][col2]='n';
       msg="n";
+      promoting=false;
+      j=0;
+      myServer.write(row1+","+col1+","+row2+","+col2+","+msg);
     }
     if(r){
       grid[row2][col2]='r';
       msg="r";
+      promoting=false;
+      j=0;
+      myServer.write(row1+","+col1+","+row2+","+col2+","+msg);
     }
     if(b){
       grid[row2][col2]='b';
       msg="b";
-    }
-    if(grid[row2][col2]!='p'){
-      myServer.write(row1+","+col1+","+row2+","+col2+","+msg);
       promoting=false;
+      j=0;
+      myServer.write(row1+","+col1+","+row2+","+col2+","+msg);
     }
   }
 }

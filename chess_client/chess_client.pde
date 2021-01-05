@@ -7,7 +7,7 @@ PImage wrook,wbishop,wknight,wqueen,wking,wpawn;
 PImage brook,bbishop,bknight,bqueen,bking,bpawn;
 boolean firstClick,myTurn,promoting,z,q,r,k,b;
 String msg;
-int row1,col1,row2,col2;
+int row1,col1,row2,col2,j;
 char lastPieceTaken;
 
 char grid[][] = {
@@ -28,6 +28,7 @@ void setup(){
   myTurn=false;
   promoting=false;
   lastPieceTaken = ' ';
+  j=0;
 
   brook=loadImage("blackRook.png");
   bbishop=loadImage("blackBishop.png");
@@ -136,11 +137,15 @@ void undoMove(){
     grid[row2][col2]=lastPieceTaken;
     myTurn=true;
     msg="un";
-  }myClient.write(row2+","+col2+","+row1+","+col1+","+msg);
+    myClient.write(row2+","+col2+","+row1+","+col1+","+msg);
+  }
 }
 void pawnPromote(){
   if(promoting){
-    myClient.write(9+","+9+","+9+","+9+","+"prom");
+    while(j<1){
+      myClient.write(9+","+9+","+9+","+9+","+"prom");
+      j++;
+    }
     fill(255);
     rect(width/2-200,height/2-100,400,200);
     fill(0);
@@ -154,22 +159,30 @@ void pawnPromote(){
     if(q){
       grid[row2][col2]='Q';
       msg="q";
+      promoting=false;
+      j=0;
+      myClient.write(row1+","+col1+","+row2+","+col2+","+msg);
     }
     if(k){
       grid[row2][col2]='N';
       msg="n";
+      promoting=false;
+      j=0;
+      myClient.write(row1+","+col1+","+row2+","+col2+","+msg);
     }
     if(r){
       grid[row2][col2]='R';
       msg="r";
+      promoting=false;
+      j=0;
+      myClient.write(row1+","+col1+","+row2+","+col2+","+msg);
     }
     if(b){
       grid[row2][col2]='B';
       msg="b";
-    }
-    if(grid[row2][col2]!='P'){
-      myClient.write(row1+","+col1+","+row2+","+col2+","+msg);
       promoting=false;
+      j=0;
+      myClient.write(row1+","+col1+","+row2+","+col2+","+msg);
     }
   }
 }
@@ -183,14 +196,13 @@ void highlightSquare(){
 }
 //Keyboard Inputs
 void keyPressed(){
-  if(key=='z'||key=='Z')z=true;
   if(key=='q'||key=='Q')q=true;
   if(key=='r'||key=='R')r=true;
   if(key=='k'||key=='K')k=true;
   if(key=='b'||key=='B')b=true;
 }
 void keyReleased(){
-  if(key=='z'||key=='Z')undoMove();;
+  if(key=='z'||key=='Z'&&!myTurn)undoMove();
   if(key=='q'||key=='Q')q=false;
   if(key=='r'||key=='R')r=false;
   if(key=='k'||key=='K')k=false;
